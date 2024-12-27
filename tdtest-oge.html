@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Scene with Three.js</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+        camera.position.z = 5;
+        let jumpActive = 0;
+        document.addEventListener('keydown', function(event) {
+            if (event.key == 'a'){
+                camera.position.x-=.150;
+            }
+            if (event.key == 'd'){
+                camera.position.x+=.150;
+            }
+            if (event.key == 'w'){
+                camera.position.z-=.150;
+            }
+            if (event.key == 's'){
+                camera.position.z+=.150;
+            }
+            if (event.key == ' '){
+                if (jumpActive == 0){
+                    jumpActive++;
+                    let preCamPos = [];   
+                    preCamPos.push(camera.position.y);                           
+                    camera.position.y+=1.5;
+                    let jumpLoop = setInterval(() => {
+                        if (Number(preCamPos.join("")) < camera.position.y){
+                            camera.position.y-=.05;
+                        }else{
+                            jumpActive--;
+                            clearInterval(jumpLoop);
+                        }
+                    }, 20);
+                }
+            }
+        });
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+        });
+        function updateCameraRotation(camera) {
+            camera.rotation.y = mouseX * Math.PI;
+            camera.rotation.x = mouseY * Math.PI / 2;
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            updateCameraRotation(camera);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
